@@ -65,7 +65,7 @@ def parse(response,yr):
             if url:
                 #Filter out url so that only external url are included
                 if url.startswith(('http', 'ftp', 'www')):
-                    
+                                       
                     #Save data after SAVE_AFTER number of pages
                     if SUCCESS_PAGES % SAVE_AFTER == 0:
                         store()
@@ -75,12 +75,14 @@ def parse(response,yr):
                         url = url.split("_/")[1]
                         
                     #Add the data in STATS.    
-                    if yr not in STATS:
-                        STATS[yr] = {}
-                    if url in STATS:
-                        STATS[yr][url] += 1
-                    else:
-                        STATS[yr][url] = 1
+                    if ".js" in url:
+                        url = url.split(".js",1)[0] + ".js"
+                        if yr not in STATS:
+                            STATS[yr] = {}
+                        if url in STATS:
+                            STATS[yr][url] += 1
+                        else:
+                            STATS[yr][url] = 1
                                                    
 #------------ Fuction to get Wayback machine URL for past years  ------------- 
 def getwayback(site):
@@ -91,13 +93,10 @@ def getwayback(site):
         try:
             response = requests.get(request_url)
             url = json.loads(response.text)["archived_snapshots"]["closest"]["url"]
-            if url:
-                url = url.replace("/http://" ,"im_/http://")
-                getresponse(url,i)
-            else:
-                print("No archive for year : " + str(i))
+            url = url.replace("/http://" ,"im_/http://")
+            getresponse(url,i)            
         except: 
-            print("Failed on : " + request_url)
+            print("No archive for year : " + str(i))
   
 #---------------- Fuction to iterate through requested sites  ----------------                       
 def iterator():
@@ -108,7 +107,6 @@ def iterator():
     #iterate through the sites
     global NUMBER_OF_SITES
     for i in range(0,NUMBER_OF_SITES,1):
-        print(i)
         print('Working on : Rank ' + str(START_RANK+i) + ' - ' + SITES[START_RANK+i])
         getresponse(PROTOCOL + SITES[START_RANK+i], CURRENT_YEAR) 
         getwayback(SITES[START_RANK+i])        
