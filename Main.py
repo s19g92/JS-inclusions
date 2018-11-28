@@ -79,11 +79,21 @@ def parse(response,yr):
                         url = url.split(".js",1)[0] + ".js"
                         if yr not in STATS:
                             STATS[yr] = {}
-                        if url in STATS:
+                        if url in STATS[yr]:
                             STATS[yr][url] += 1
                         else:
                             STATS[yr][url] = 1
-                                                   
+                            
+    #Look for iframes and fetch them to get the javascripts 
+    for iframe in soup.find_all("iframe"):
+        if iframe:
+            url = iframe.get("src")
+            #Check if the url is not None
+            if url:
+                #Filter out url so that only external url are included
+                if url.startswith(('http', 'ftp', 'www')):
+                    getresponse(url,yr)
+            
 #------------ Fuction to get Wayback machine URL for past years  ------------- 
 def getwayback(site):
     #Get the url's for the given site for all the years mentioned in the range.
